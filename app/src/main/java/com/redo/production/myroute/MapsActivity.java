@@ -2,16 +2,22 @@ package com.redo.production.myroute;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -66,10 +72,41 @@ public class MapsActivity extends FragmentActivity{
         //Thread thread = new Thread(new Timer());
         //thread.start();
 
+        //check GPS is enable or not
+        LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            Toast.makeText(this,"GPS is enabled",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            showDisabledGPSAlert();
+        }
+
 
     }
 
-
+    private void showDisabledGPSAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("GPS is disable. Would you like to eable it?")
+                .setCancelable(false)
+                .setPositiveButton("Go to setting",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent settingGPSIntent = new Intent(
+                                        Settings.ACTION_LOCATION_SOURCE_SETTINGS
+                                );
+                                startActivity(settingGPSIntent);
+                            }
+                        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alert = alertDialog.create();
+        alert.show();
+    }
 
 
     @Override
