@@ -7,21 +7,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5sp"
         >
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/btnReset"
             android:onClick="onReset"
             android:gravity="center"
             android:background="@drawable/btn_restart"
+
             android:layout_marginRight="10dp" />
         <Button
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
             android:id="@+id/btnSave"
             android:onClick="onSave"
             android:background="@drawable/btn_save"
@@ -31,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:minWidth="100dp">
 
         <TextView
@@ -54,7 +55,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:minWidth="100dp">
 
         <TextView
@@ -78,7 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="2dp"
         android:minWidth="100dp"
         android:layout_marginBottom="5dp">
 
