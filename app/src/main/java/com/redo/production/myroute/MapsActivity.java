@@ -9,50 +9,35 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.CountDownTimer;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Math.acos;
 import static java.lang.Math.toRadians;
-
-
-@TargetApi(Build.VERSION_CODES.GINGERBREAD)
-@SuppressLint("NewApi")
-
-
 
 public class MapsActivity extends FragmentActivity{
 
@@ -63,13 +48,6 @@ public class MapsActivity extends FragmentActivity{
     long count=0;
     double speed=0;
 
-
-
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,10 +56,6 @@ public class MapsActivity extends FragmentActivity{
         txvDistance=(TextView) findViewById(R.id.txvDistance);
         txvSpeed=(TextView) findViewById(R.id.txvSpeed);
         txvTimeLeft =(TextView) findViewById(R.id.txvTimeLeft);
-
-
-
-
 
         //*******************************************************
         //checking GPS and Network available
@@ -93,20 +67,14 @@ public class MapsActivity extends FragmentActivity{
         NetworkInfo.State wifi = conMan.getNetworkInfo(1).getState();
 
 
-        if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING)
-        {
+        if (mobile == NetworkInfo.State.CONNECTED || mobile == NetworkInfo.State.CONNECTING) {
             Toast.makeText(this,"Network connected",Toast.LENGTH_LONG).show();
-        }
-        else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING)
-        {
+        } else if (wifi == NetworkInfo.State.CONNECTED || wifi == NetworkInfo.State.CONNECTING) {
             Toast.makeText(this,"Wifi connected",Toast.LENGTH_LONG).show();
         }
 
-
-
         //Time counting
-
-        Timer T=new Timer();
+        Timer T = new Timer();
         T.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -122,36 +90,14 @@ public class MapsActivity extends FragmentActivity{
             }
         }, 1000, 1000);
 
-
+        //*****************************************************
+        //checking GPS enable and show confirm setting dialog
+        //****************************************************
+        final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            showDisabledGPSAlert();
+        }
     }
-
-
-
-    private void showDisabledGPSAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setMessage("GPS is disable. Would you like to enable it?")
-                .setCancelable(false)
-                .setPositiveButton("Go to setting",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent settingGPSIntent = new Intent(
-                                        Settings.ACTION_LOCATION_SOURCE_SETTINGS
-                                );
-                                startActivity(settingGPSIntent);
-                            }
-                        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                return;
-            }
-        });
-        AlertDialog alert = alertDialog.create();
-        alert.show();
-    }
-
 
     @Override
     protected void onResume() {
@@ -159,14 +105,7 @@ public class MapsActivity extends FragmentActivity{
         setUpMapIfNeeded();
     }
 
-
-
-
-
-
     private void setUpMapIfNeeded() {
-
-
         if (mMap == null) {
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
@@ -177,11 +116,8 @@ public class MapsActivity extends FragmentActivity{
             mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
                 @Override
                 public void onMyLocationChange(Location arg0) {
-
-
                     //check startPoint is set or not?
-                    if(startPoint==null)
-                    {
+                    if(startPoint==null) {
                         startPoint = new LatLng(arg0.getLatitude(), arg0.getLongitude());
                         mMap.addMarker(new MarkerOptions().position(startPoint).title("Started point"));
                     }
@@ -191,7 +127,6 @@ public class MapsActivity extends FragmentActivity{
                         prePoint=currentPoint;
                     else
                         prePoint=startPoint;
-
 
                     //updating current Position
                     currentPoint = new LatLng(arg0.getLatitude(),arg0.getLongitude());
@@ -203,7 +138,6 @@ public class MapsActivity extends FragmentActivity{
                                                         .width(10).color(Color.BLUE).geodesic(true);
                     mMap.addPolyline(polylineOptions);
 
-
                     //set camera
                     currentPoint = new LatLng(arg0.getLatitude(), arg0.getLongitude());
                     CameraPosition currentPos = new CameraPosition.Builder()
@@ -211,32 +145,22 @@ public class MapsActivity extends FragmentActivity{
                     mMap.animateCamera(
                             CameraUpdateFactory.newCameraPosition(currentPos));
 
-
                     //update distance
                     distance+=getDistance(prePoint, currentPoint);
                     txvDistance.setText(Double.toString(distance) + "m");
 
-
                     //get current speed
                     speed = arg0.getSpeed();
                     txvSpeed.setText(Double.toString(speed)+ "km/h");
-
                 }
             });
-
         }
-
-
     }
-
-
 
     //capture screen
     public void onSave(View v){
-
         Date now = new Date();
         android.text.format.DateFormat.format("yyyy-MM-dd_hh:mm:ss", now);
-
         try {
             // image naming and path  to include sd card  appending name you choose for file
             String mPath = Environment.getExternalStorageDirectory().toString() + "/" + now + ".jpg";
@@ -248,7 +172,6 @@ public class MapsActivity extends FragmentActivity{
             v1.setDrawingCacheEnabled(false);
 
             File imageFile = new File(mPath);
-
             FileOutputStream outputStream = new FileOutputStream(imageFile);
             int quality = 100;
             bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
@@ -261,7 +184,6 @@ public class MapsActivity extends FragmentActivity{
 
             Toast.makeText(this,"Fail",Toast.LENGTH_LONG).show();
         }
-
     }
 
     private void openScreenshot(File imageFile) {
@@ -291,9 +213,7 @@ public class MapsActivity extends FragmentActivity{
         distance = 0;
         count = 0;
         txvDistance.setText(Long.toString(distance));
-
         currentPoint = null;
-
     }
 
 
@@ -308,6 +228,32 @@ public class MapsActivity extends FragmentActivity{
             dist = dist + Math.PI;
         }
         return Math.round(dist * 6378100);
+    }
+
+    //show confirm dialog GPS setting
+    private void showDisabledGPSAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setMessage("GPS is disable. Would you like to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Go to setting",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent settingGPSIntent = new Intent(
+                                        Settings.ACTION_LOCATION_SOURCE_SETTINGS
+                                );
+                                startActivity(settingGPSIntent);
+                            }
+                        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                return;
+            }
+        });
+        AlertDialog alert = alertDialog.create();
+        alert.show();
     }
 
 }
